@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  lftpsync:
+    image:nitrobass24/lftpsync
+    container_name: lftpsync
+    volumes:
+      # Mount the script into the container
+      - ./my-script.sh:/app/my-script.sh:ro
+      # Mount the directory for data files
+      - /mnt/tank/data:/app/data
+    working_dir: /app
+    entrypoint: ["bash", "/app/my-script.sh"]
+    environment:
+      - PUID=568
+      - PGID=568
+      - TZ=America/Chicago
+    restart: unless-stopped

@@ -2,13 +2,13 @@ version: '3.8'
 
 services:
   lftpsync:
-    image:nitrobass24/lftpsync
+    image:nitrobass24/lftpsync:ubuntu
     container_name: lftpsync
     volumes:
       # Mount the script into the container
-      - ./my-script.sh:/app/my-script.sh:ro
+      - /mnt/ssdpool/stephen/sftpsync.sh:/app/sftpsync.sh:ro
       # Mount the directory for data files
-      - /mnt/tank/data:/app/data
+      - /mnt/sftpsync/data:/app/data
     working_dir: /app
     entrypoint: ["bash", "/app/my-script.sh"]
     environment:

@@ -16,3 +16,7 @@ services:
       - PGID=568
       - TZ=America/Chicago
     restart: unless-stopped
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"

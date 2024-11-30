@@ -10,9 +10,6 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Make the script executable
-RUN chmod +x /app/my-script.sh
-
 # Add the cron job
 RUN echo "*/5 * * * * bash /app/my-script.sh >> /var/log/cron.log 2>&1" > /etc/cron.d/mycron && \
     chmod 0644 /etc/cron.d/mycron && \

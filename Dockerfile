@@ -11,7 +11,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Add the cron job
-RUN echo "*/5 * * * * bash /app/my-script.sh >> /var/log/cron.log 2>&1" > /etc/cron.d/mycron && \
+RUN echo "*/5 * * * * bash -x /app/my-script.sh 2>&1 | tee -a /var/log/cron.log" > /etc/cron.d/mycron && \
     chmod 0644 /etc/cron.d/mycron && \
     crontab /etc/cron.d/mycron
 

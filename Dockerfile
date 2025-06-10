@@ -1,25 +1,32 @@
-# Use a lightweight Linux base image
-FROM ubuntu:oracular
+# Use hotio's Alpine-based VPN-ready base image
+FROM hotio/base:alpinevpn
 
-# Set environment variables to prevent interactive prompts during installation
-ENV DEBIAN_FRONTEND=noninteractive
+# Install required tools
+RUN apk add --no-cache \
+    bash \
+    lftp \
+    rsync \
+    wget \
+    build-base \
+    cron
 
-# Install lftp, unrar, and other utilities
-RUN apt-get update && \
-    apt-get install -y lftp unrar rsync cron && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Build and install unrar manually (not available in Alpine's official repos)
+RUN wget https://www.rarlab.com/rar/unrarsrc-6.2.10.tar.gz && \
+    tar -xzf unrarsrc-6.2.10.tar.gz && \
+    cd unrar && \
+    make -f makefile && \
+    install -m 755 unrar /usr/local/bin/unrar && \
+    cd .. && \
+    rm -rf unrar unrarsrc-6.2.10.tar.gz
 
-# Add the cron job
-RUN echo "*/5 * * * * bash -x /app/my-script.sh 2>&1 | tee -a /var/log/cron.log" > /etc/cron.d/mycron && \
-    chmod 0644 /etc/cron.d/mycron && \
-    crontab /etc/cron.d/mycron
+# Set up cron job to run the script every 5 minutes with verbose logging to both screen and file
+RUN echo '*/5 * * * * bash -x /app/my-script.sh 2>&1 | tee -a /var/log/cron.log' > /etc/crontabs/root
 
-# Create the log file and directory
-RUN touch /var/log/cron.log
+# Prepare working directory and log file
+RUN mkdir -p /app && touch /var/log/cron.log
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Default command to run a script passed as an argument
-CMD ["cron", "-f"]
+# Run cron in the foreground
+CMD ["crond", "-f"]
